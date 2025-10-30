@@ -41,3 +41,32 @@ This repository reproduces a real customer issue that slipped past automated che
 You are free to refactor the code or add tooling to support your investigation—just keep the reproduction steps intact for the next engineer who picks this up. **Do not modify `data/users.json`; all fixes must live in the application code or supporting tests.**
 
 Good luck, and have fun tracing the bug!
+
+## Fix Summary
+
+### Overview
+The app validated user names against an external API but failed for names with **Unicode characters** (e.g., curly apostrophes and accented letters).  
+This fix normalizes names before validation so all entries in `data/users.json` pass successfully.
+
+---
+
+### Issue
+**Before Fix:**
+
+I had an error which meant **Name is invalid. Only characters allowed in a name is premitted*. This error was due to the external API not recognizing some characters in the names. To fix this I had to create a helper function to sanitize the names before sending to the API for validation.
+
+![Initial Error](screenshoots/screenshoot_1.png)
+
+**After fix**
+
+The helper function **normalizeName()** cleans and standardizes user names before sending them to the external validation API.
+
+![Success](screenshoots/screenshoot_2.png)
+
+**Test Results**
+
+I installed Vitest to help simulate our test and created a new test file normalizeName to map curly apostrophes to ASCII and also remove zero-width and odd spaces
+
+![Test Results](screenshoots/screenshoot_4.png)
+
+
