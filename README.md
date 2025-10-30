@@ -1,6 +1,6 @@
 # QA Incident Simulation
 
-This repository reproduces a real customer issue that slipped past automated checks. Use it to practice end-to-end debugging, implement a production-ready fix, and lock the behaviour down with tests.
+This repository reproduces a real customer issue that slipped past automated checks. Use it to practice end-to-end debugging, implement a production-ready fix, and lock the behaviour down with tests. Treat this as an assessment: the final deliverable includes code changes and accompanying tests.
 
 ## Background
 
@@ -35,7 +35,7 @@ This repository reproduces a real customer issue that slipped past automated che
 
 1. Reproduce the failure locally and identify the exact data problem that causes the rejection.
 2. Implement a fix in the validation flow so that every name in `data/users.json` passes the external check.
-3. Add automated regression coverage (ensure `npm run test` runs your test) so the scenario stays fixed.
+3. Add automated regression coverage (ensure `npm run test` runs your test) that covers both the `validateUser` logic and the `/api/validate-users` endpoint so the scenario stays fixed.
 4. Fork this repository, commit your solution, and send the link to your fork to Emmanuel via WhatsApp by Thursday, Oct 30th at 11:59 PM GMT.
 
 You are free to refactor the code or add tooling to support your investigation—just keep the reproduction steps intact for the next engineer who picks this up. **Do not modify `data/users.json`; all fixes must live in the application code or supporting tests.**
