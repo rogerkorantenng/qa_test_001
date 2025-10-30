@@ -9,6 +9,28 @@ import path from "node:path";
 const VALIDATION_URL = "https://schoolbaseapp.com/validate-name";
 const USERS_PATH = path.resolve(__dirname, "../data/users.json");
 
+const UNICODE_APOSTROPHES = /[\u2018\u2019\u02BC\u2032\u2035]/g; // ‘ ’ ʼ ′ ‵
+
+function normalizeName(input: string): string {
+    let s = input.normalize("NFC");
+
+    // 1) Unify apostrophes
+    s = s.replace(UNICODE_APOSTROPHES, "'");
+
+    // 2) Strip diacritics (é → e, ñ → n, á → a, etc.)
+    // Decompose to base + marks, then remove combining marks.
+    s = s.normalize("NFKD").replace(/\p{M}+/gu, "");
+
+    // 3) Remove any non-ASCII letters/apostrophes/spaces (validator seems strict)
+    s = s.replace(/[^A-Za-z' ]+/g, " ");
+
+    // 4) Normalize all Unicode separators to space, collapse, and trim
+    s = s.replace(/\p{Separator}+/gu, " ");
+    s = s.replace(/\s+/g, " ").trim();
+
+    return s;
+}
+
 const app = express();
 
 app.get("/health", (_req: Request, res: ExpressResponse) => {
@@ -69,26 +91,28 @@ async function loadUsers(): Promise<string[]> {
 }
 
 async function validateUser(name: string): Promise<void> {
-  const url = `${VALIDATION_URL}?name=${encodeURIComponent(name)}`;
+    const normalized = normalizeName(name);
+    const url = `${VALIDATION_URL}?name=${encodeURIComponent(normalized)}`;
 
-  let response: Response;
+    let response: Response;
 
-  try {
-    response = await fetch(url);
-  } catch (_error) {
-    console.error(`${name} - Failed to reach validation service.`);
-    process.exit(1);
-  }
+    try {
+        response = await fetch(url);
+    } catch (_error) {
+        console.error(`${normalized} - Failed to reach validation service.`);
+        process.exit(1);
+    }
 
-  const message = await extractMessage(response);
+    const message = await extractMessage(response);
 
-  if (response.status !== 200) {
-    console.error(`${name} - ${message}`);
-    process.exit(1);
-  }
+    if (response.status !== 200) {
+        console.error(`${normalized} - ${message}`);
+        process.exit(1);
+    }
 
-  console.log(`${name} - ${message}`);
+    console.log(`${normalized} - ${message}`);
 }
+
 
 async function extractMessage(response: Response): Promise<string> {
   try {
