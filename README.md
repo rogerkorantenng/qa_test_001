@@ -42,13 +42,15 @@ You are free to refactor the code or add tooling to support your investigationâ€
 
 Good luck, and have fun tracing the bug!
 
+---
+
+
 ## Fix Summary
 
 ### Overview
 The app validated user names against an external API but failed for names with **Unicode characters** (e.g., curly apostrophes and accented letters).  
 This fix normalizes names before validation so all entries in `data/users.json` pass successfully.
 
----
 
 ### Issue
 **Before Fix:**
